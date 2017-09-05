@@ -1,7 +1,7 @@
 'use strict';
 
-var qs = require('querystring'),
-    request = require('request');
+var qs = require('querystring');
+    // request = require('request');
 
 var DISTANCE_API_URL = 'https://maps.googleapis.com/maps/api/distancematrix/json?';
 
@@ -104,6 +104,29 @@ var formatResults = function(data, options, callback) {
 };
 
 var fetchData = function(options, callback) {
+  fetch(DISTANCE_API_URL + qs.stringify(options))
+    .then((response) => {
+      if(response.status != 200) {
+        let error = new Error(response.statusText);
+        error.response = response;
+        throw error;
+      }
+      return response;
+    })
+    .then((response) => response.json())
+    .then((response) => {
+      callback(response);
+    })
+    .catch ((error) => {
+      requestError(error, callback);
+    });
+};
+
+var requestError = (err, callback) => {
+  callback(new Error('Request error: Could not fetch data from Google\'s servers: ' + err));
+}
+
+var fetchData_old = function(options, callback) {
   request(DISTANCE_API_URL + qs.stringify(options), function (err, res, body) {
     if (!err && res.statusCode == 200) {
       var data = JSON.parse(body);

@@ -1,17 +1,17 @@
 {
-  "name": "google-distance",
+  "name": "react-native-google-matrix",
   "version": "1.0.1",
   "main": "index",
-  "description": "A simple node.js wrapper for Google's Distance Matrix API",
+  "description": "A simple react-native wrapper for Google's Distance Matrix API",
   "author": {
-    "name": "Edward Look",
-    "email": "edwlook@gmail.com",
-    "url": "http://edwardlook.com"
+    "name": "Aldo Ginting",
+    "email": "aldoutamaginting@gmail.com",
+    "url": "http://aldoginting.net"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/edwlook/node-google-distance.git"
+    "url": "https://github.com/aldogint/node-google-distance.git"
   },
   "keywords": [
     "google",
@@ -21,7 +21,6 @@
     "api"
   ],
   "dependencies": {
-    "request": "~2.34.0"
   },
   "devDependencies": {
     "mocha": "~1.18.2",
