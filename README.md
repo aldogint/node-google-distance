@@ -20,5 +20,6 @@ distance.get(
     if (err) return console.log(err);
     console.log(data);
 });
+```
 
 *to be updated...*
