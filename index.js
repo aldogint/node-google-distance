@@ -1,7 +1,7 @@
 'use strict';
 var qs = require('querystring');
     // request = require('request');
-const fetch = require('isomorphic-fetch');
+var fetch = require('isomorphic-fetch');
 var DISTANCE_API_URL = 'https://maps.googleapis.com/maps/api/distancematrix/json?';
 
 var GoogleDistance = function() {
