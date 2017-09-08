@@ -1,5 +1,6 @@
 # Google Distance Matrix API for react-native
-[![Build Status](https://travis-ci.org/aldogint/react-native-google-matrix.svg?branch=master)](https://travis-ci.org/aldogint/react-native-google-matrix)  
+[![Build Status](https://travis-ci.org/aldogint/react-native-google-matrix.svg?branch=master)](https://travis-ci.org/aldogint/react-native-google-matrix)
+[![npm version](https://badge.fury.io/js/react-native-google-matrix.svg)](https://badge.fury.io/js/react-native-google-matrix)  
 
 This repository is forked from [node-google-distance](https://github.com/aldogint/node-google-distance).   
 Easily get traveling distance and duration data between locations with the [Google Distance Matrix API](https://developers.google.com/maps/documentation/distancematrix/)
