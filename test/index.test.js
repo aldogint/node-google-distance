@@ -11,7 +11,7 @@ describe('GoogleDistance', function() {
         destination: 'San Diego, CA'
       };
       distance.get(options, function(err, data) {
-        if (err) return done(err);
+	if (err) return done(err);
         var expectedData = {
           index: null,
           origin: 'San Francisco, CA, USA',
@@ -41,7 +41,7 @@ describe('GoogleDistance', function() {
         done();
       });
     });
-
+/**
     it('should return proper location data given multiple origins/destinations', function(done) {
       var options = {
         origins: ['San Francisco, CA','San Diego, CA'],
@@ -112,7 +112,7 @@ describe('GoogleDistance', function() {
         done();
       });
     });
-
+*/
 
     it('should return proper result when given only one origin/destination in batch mode', function(done) {
       var options = {

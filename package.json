@@ -20,11 +20,12 @@
     "matrix",
     "api"
   ],
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "mocha": "~1.18.2",
-    "chai": "~1.9.1"
+    "chai": "~1.9.1",
+    "react": "16.0.0-alpha.12",
+    "react-native": "0.45.1"
   },
   "scripts": {
     "test": "./node_modules/.bin/mocha --timeout 10000 test/*.js"
