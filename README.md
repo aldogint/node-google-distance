@@ -7,7 +7,7 @@ A simple react-native wrapper for [Google Distance Matrix API](https://developer
 
 ## Installation
 
-    not available yet
+    npm install --save react-native-google-matrix
 
 ## Usage
 ```js
