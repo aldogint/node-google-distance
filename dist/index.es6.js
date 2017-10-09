@@ -139,11 +139,11 @@ var createClass = function () {
   };
 }();
 
-/*global fetch, const fetch = require('node-fetch')*/
+/*global fetch, */
 'use strict';
 
 var qs = require('querystring');
-const fetch = require('node-fetch');
+
 
 var DISTANCE_API_URL = 'https://maps.googleapis.com/maps/' + 'api/distancematrix/json?';
 var requestError = function requestError(err, callback) {
@@ -192,9 +192,9 @@ var GoogleDistance = function () {
 
       var options = this.formatOptions(args);
       this.fetchData(options, function (err, data) {
-        if (err) throw err;
+        if (err) callback(err);
         _this.formatResults(data, options, function (err, results) {
-          if (err) throw err;
+          if (err) callback(err);
           return callback(null, results);
         });
       });
