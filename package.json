@@ -32,10 +32,11 @@
     "mocha": "~1.18.2",
     "node-fetch": "^1.7.3",
     "rollup": "^0.50.0",
-    "rollup-plugin-babel": "^3.0.2"
+    "rollup-plugin-babel": "^3.0.2",
+    "rollup-plugin-replace": "^2.0.0"
   },
   "scripts": {
-    "pretest": "rollup -c",
+    "pretest": "POLYFILL_FETCH=true rollup -c",
     "test": "mocha --timeout 10000 test/*.js",
     "build": "rollup -c",
     "prepublish": "npm test"

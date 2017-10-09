@@ -1,5 +1,6 @@
 'use strict';
 var qs = require('querystring');
+POLYFILL_FETCH
 
 const DISTANCE_API_URL = 'https://maps.googleapis.com/maps/api/distancematrix/json?';
 const requestError = (err, callback) => {
