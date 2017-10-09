@@ -141,12 +141,13 @@ var createClass = function () {
   };
 }();
 
+/*global fetch, const fetch = require('node-fetch')*/
 'use strict';
 
 var qs = require('querystring');
 const fetch = require('node-fetch');
 
-var DISTANCE_API_URL = 'https://maps.googleapis.com/maps/api/distancematrix/json?';
+var DISTANCE_API_URL = 'https://maps.googleapis.com/maps/' + 'api/distancematrix/json?';
 var requestError = function requestError(err, callback) {
   callback(new Error('Request error: Could not fetch data from Google\'s servers: ' + err));
 };
@@ -189,11 +190,13 @@ var GoogleDistance = function () {
   createClass(GoogleDistance, [{
     key: 'get',
     value: function get$$1(args, callback) {
+      var _this = this;
+
       var options = this.formatOptions(args);
       this.fetchData(options, function (err, data) {
-        if (err) return callback(err);
-        this.formatResults(data, options, function (err, results) {
-          if (err) return callback(err);
+        if (err) throw err;
+        _this.formatResults(data, options, function (err, results) {
+          if (err) throw err;
           return callback(null, results);
         });
       });
@@ -217,32 +220,40 @@ var GoogleDistance = function () {
           units = args.units,
           language = args.language,
           avoid = args.avoid,
-          sensor = args.sensor,
-          key = args.key;
+          sensor = args.sensor;
+      var key = this.key,
+          businessClientKey = this.businessClientKey,
+          businessSignatureKey = this.businessSignatureKey;
 
       var batchMode = false;
+      // enforce defaults
       index = index || null;
       mode = mode || 'driving';
       units = units || 'metric';
       language = language || 'en';
       avoid = avoid || null;
       sensor = sensor || false;
-      key = this.apiKey;
 
-      if (!origin && origins) {
-        origins = origins.join('|');
-        batchMode = true;
-      }
-      if (!destination && destinations) {
-        destinations = destinations.join('|');
-        batchMode = true;
-      }
-      if (!origins) throw new Error('Argument Error: Origin is invalid');
-      if (!destinations) throw new Error('Argument Error: Destination is invalid');
-
-      return Object.assign({
-        index: index, origins: origins, destinations: destinations, mode: mode, units: units, language: language, avoid: avoid, sensor: sensor, key: key
-      }, batchMode && { batchMode: batchMode }); //only include batchMode if true
+      var check = function check(singular, plural, success) {
+        var okString = (singular || {}).constructor == String && singular.length;
+        var okArray = Array.isArray(plural) && plural.length;
+        if (!okString && okArray) {
+          success(plural.join('|'));
+          batchMode = true;
+        } else if (!okArray && okString) {
+          success(singular);
+        } else {
+          throw new Error('invalid option values: ' + JSON.stringify(singular) + ', ' + JSON.stringify(plural));
+        }
+      };
+      check(origin, origins, function (checked) {
+        return origins = checked;
+      });
+      check(destination, destinations, function (checked) {
+        return destinations = checked;
+      });
+      return Object.assign({ index: index, origins: origins, destinations: destinations, mode: mode, units: units, language: language, avoid: avoid, sensor: sensor }, batchMode && { batchMode: batchMode }, //only include batchMode if true
+      businessClientKey && businessSignatureKey ? { businessClientKey: businessClientKey, businessSignatureKey: businessSignatureKey } : { key: key });
     }
     /**
      * Formats the results to... something
@@ -290,9 +301,7 @@ var GoogleDistance = function () {
           var element = data.rows[i].elements[j];
           var status = element.status;
 
-          if (status != 'OK') {
-            return callback(new Error('Result error: ' + resultStatus));
-          }
+          if (status != 'OK') return callback(new Error('Result error: ' + status));
           element.origin = data.origin_addresses[i];
           element.destination = data.destination_addresses[j];
 
@@ -305,15 +314,15 @@ var GoogleDistance = function () {
       }
       return callback(null, results);
     }
-  }, {
-    key: 'fetchData',
-
     /**
      * Fetches data
      * @param  {Object}   options  see formatResults's return
      * @param  {Function} callback Error/success handler function(err, data)
      * @return {undefined}
      */
+
+  }, {
+    key: 'fetchData',
     value: function fetchData(options, callback) {
       fetch(DISTANCE_API_URL + qs.stringify(options)).then(function (response) {
         if (response.status != 200) {
@@ -333,9 +342,9 @@ var GoogleDistance = function () {
   }]);
   return GoogleDistance;
 }();
-
-
 // export {GoogleDistance};
+
+
 var index = new GoogleDistance();
 
 module.exports = index;

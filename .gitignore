@@ -56,3 +56,6 @@ typings/
 
 # dotenv environment variables file
 .env
+
+# api keys for testing
+test/secret/*

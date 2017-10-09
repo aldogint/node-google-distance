@@ -1,8 +1,31 @@
-var assert = require('chai').assert,
-    distance = require('../dist/index.common.js');
-var fetch = require('node-fetch');
+const {readFileSync} = require('fs');
+const {join} = require('path');
+const {assert} = require('chai');
+const distance = require(join(__dirname, '..', 'dist', 'index.common.js'));
+const key = readFileSync(join(__dirname, 'secret', 'api-key.txt'), 'utf8').trim();
+distance.key = key;
 
 describe('GoogleDistance', function() {
+  describe('#formatOptions', function(){
+    it('Should correctly process input options', function(){
+      let actual = distance.formatOptions({
+        origin: 'San Francisco, CA',
+        destination: 'San Diego, CA'
+      });
+      let expected = {
+        index       : null,
+        mode        : 'driving',
+        units       : 'metric',
+        language    : 'en',
+        avoid       : null,
+        sensor      : false,
+        origins     : 'San Francisco, CA',
+        destinations: 'San Diego, CA',
+        key
+      }
+      assert.deepEqual(actual, expected, 'Procesed options not as expected');
+    });
+  });
 
   describe('#get()', function() {
 
@@ -12,7 +35,8 @@ describe('GoogleDistance', function() {
         destination: 'San Diego, CA'
       };
       distance.get(options, function(err, data) {
-	if (err) return done(err);
+        if (err) return done(err);
+        console.log(data);
         var expectedData = {
           index: null,
           origin: 'San Francisco, CA, USA',

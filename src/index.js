@@ -1,8 +1,10 @@
+/*global fetch, POLYFILL_FETCH*/
 'use strict';
 var qs = require('querystring');
 POLYFILL_FETCH
 
-const DISTANCE_API_URL = 'https://maps.googleapis.com/maps/api/distancematrix/json?';
+const DISTANCE_API_URL = 'https://maps.googleapis.com/maps/' +
+  'api/distancematrix/json?';
 const requestError = (err, callback) => {
   callback(new Error('Request error: Could not fetch data from Google\'s servers: ' + err));
 }
@@ -36,10 +38,10 @@ class GoogleDistance {
    */
   get(args, callback){
     const options = this.formatOptions(args);
-    this.fetchData(options, function(err, data){
-      if (err) return callback(err);
+    this.fetchData(options, (err, data)=>{
+      if (err) callback(err);
       this.formatResults(data, options, function(err, results) {
-        if (err) return callback(err);
+        if (err) callback(err);
         return callback(null, results);
       });
     });
@@ -53,31 +55,42 @@ class GoogleDistance {
   formatOptions(args){
     let {
       index, origin, origins, destination, destinations, mode, units, language,
-      avoid, sensor, key
+      avoid, sensor
     } = args;
+    let {key, businessClientKey, businessSignatureKey} = this;
     let batchMode = false;
+    // enforce defaults
     index    = index    || null;
     mode     = mode     || 'driving';
     units    = units    || 'metric';
     language = language || 'en';
     avoid    = avoid    || null;
     sensor   = sensor   || false;
-    key      = this.apiKey;
 
-    if (!origin && origins){
-      origins = origins.join('|');
-      batchMode = true;
+    const check = (singular, plural, success) => {
+      var okString = (singular || {}).constructor == String && singular.length;
+      const okArray = Array.isArray(plural) && plural.length;
+      if (!okString && okArray){
+        success(plural.join('|'));
+        batchMode = true;
+      } else if (!okArray && okString){
+        success(singular);
+      } else {
+        throw new Error(
+          `invalid option values: ${JSON.stringify(singular)}, ` +
+            JSON.stringify(plural)
+          )
+      }
     }
-    if (!destination && destinations){
-      destinations = destinations.join('|');
-      batchMode = true;
-    }
-    if (!origins) throw new Error('Argument Error: Origin is invalid');
-    if (!destinations) throw new Error('Argument Error: Destination is invalid');
-
-    return Object.assign({
-      index, origins, destinations, mode, units, language, avoid, sensor, key
-    }, batchMode && {batchMode}) //only include batchMode if true
+    check(origin, origins, checked => origins = checked);
+    check(destination, destinations, checked => destinations = checked);
+    return Object.assign(
+      {index, origins, destinations, mode, units, language, avoid, sensor},
+      batchMode && {batchMode}, //only include batchMode if true
+      businessClientKey && businessSignatureKey
+        ? {businessClientKey, businessSignatureKey}
+        : {key}
+    );
   }
   /**
    * Formats the results to... something
@@ -123,9 +136,7 @@ class GoogleDistance {
       for (var j = 0; j < data.destination_addresses.length; j++) {
         var element = data.rows[i].elements[j];
         let {status} = element;
-        if (status != 'OK') {
-          return callback(new Error(`Result error: ${resultStatus}`));
-        }
+        if (status != 'OK') return callback(new Error(`Result error: ${status}`));
         element.origin = data.origin_addresses[i];
         element.destination = data.destination_addresses[j];
 
@@ -137,7 +148,7 @@ class GoogleDistance {
       results = results[0];
     }
     return callback(null, results);
-  };
+  }
   /**
    * Fetches data
    * @param  {Object}   options  see formatResults's return
@@ -162,6 +173,6 @@ class GoogleDistance {
         requestError(error, callback);
       });
   }
-};
+}
 // export {GoogleDistance};
 export default new GoogleDistance;
