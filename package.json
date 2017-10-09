@@ -2,7 +2,7 @@
   "name": "react-native-google-matrix",
   "version": "0.0.2",
   "main": "dist/index.common.js",
-  "module": "dist/index.es6.js",
+  "module": "dist/index.mjs",
   "description": "A simple react-native wrapper for Google's Distance Matrix API",
   "author": {
     "name": "Aldo Ginting",
@@ -37,9 +37,10 @@
     "rollup-plugin-replace": "^2.0.0"
   },
   "scripts": {
-    "pretest": "POLYFILL_FETCH=true rollup -c",
+    "pretest": "polyfill=true rollup -c",
     "test": "mocha --timeout 10000 test/*.js",
-    "build": "rollup -c",
+    "build-es6": "rollup -c",
+    "build": "rollup -c && babel=true rollup -c",
     "prepublish": "npm test"
   }
 }

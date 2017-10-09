@@ -146,7 +146,6 @@ var createClass = function () {
 
 var qs = require('querystring');
 
-
 var DISTANCE_API_URL = 'https://maps.googleapis.com/maps/' + 'api/distancematrix/json?';
 var requestError = function requestError(err, callback) {
   callback(new Error('Request error: Could not fetch data from Google\'s servers: ' + err));
