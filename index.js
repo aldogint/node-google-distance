@@ -1,138 +1,166 @@
 'use strict';
 var qs = require('querystring');
-    // request = require('request');
-var DISTANCE_API_URL = 'https://maps.googleapis.com/maps/api/distancematrix/json?';
 
-var GoogleDistance = function() {
-  this.apiKey = '';
-  this.businessClientKey = '';
-  this.businessSignatureKey = '';
-};
-
-GoogleDistance.prototype.get = function(args, callback) {
-  var self = this;
-  var options = formatOptions.call(this, args);
-  fetchData(options, function(err, data) {
-    if (err) return callback(err);
-    formatResults(data, options, function(err, results) {
-      if (err) return callback(err);
-      return callback(null, results);
-    });
-  });
-};
-
-var formatOptions = function(args) {
-  var options = {
-    index: args.index || null,
-    origins: args.origin,
-    destinations: args.destination,
-    mode: args.mode || 'driving',
-    units: args.units || 'metric',
-    language: args.language || 'en',
-    avoid: args.avoid || null,
-    sensor: args.sensor || false,
-    key: this.apiKey
-  };
-
-  if (!args.origin && args.origins) {
-    options.origins = args.origins.join('|');
-    options.batchMode = true;
-  }
-  if (!args.destination && args.destinations) {
-    options.destinations = args.destinations.join('|');
-    options.batchMode = true;
-  }
-
-  if (this.businessClientKey && this.businessSignatureKey) {
-    delete options.key;
-    options.client = this.businessClientKey;
-    options.signature = this.businessSignatureKey;
-  }
-  if (!options.origins) {
-    throw new Error('Argument Error: Origin is invalid');
-  }
-  if (!options.destinations) {
-    throw new Error('Argument Error: Destination is invalid');
-  }
-  return options;
-};
-
-var formatResults = function(data, options, callback) {
-  var formatData = function (element) {
-    return {
-      index: options.index,
-      distance: element.distance.text,
-      distanceValue: element.distance.value,
-      duration: element.duration.text,
-      durationValue: element.duration.value,
-      origin: element.origin,
-      destination: element.destination,
-      mode: options.mode,
-      units: options.units,
-      language: options.language,
-      avoid: options.avoid,
-      sensor: options.sensor
-    };
-  };
-
-  var requestStatus = data.status;
-  if (requestStatus != 'OK') {
-    return callback(new Error('Status error: ' + requestStatus + ': ' + data.error_message));
-  }
-  var results = [];
-
-  for (var i = 0; i < data.origin_addresses.length; i++) {
-    for (var j = 0; j < data.destination_addresses.length; j++) {
-      var element = data.rows[i].elements[j];
-      var resultStatus = element.status;
-      if (resultStatus != 'OK') {
-        return callback(new Error('Result error: ' + resultStatus));
-      }
-      element.origin = data.origin_addresses[i];
-      element.destination = data.destination_addresses[j];
-
-      results.push(formatData(element));
-    }
-  }
-
-  if (results.length == 1 && !options.batchMode) {
-    results = results[0];
-  }
-  return callback(null, results);
-};
-
-var fetchData = function(options, callback) {
-  fetch(DISTANCE_API_URL + qs.stringify(options))
-    .then((response) => {
-      if(response.status != 200) {
-        let error = new Error(response.statusText);
-        error.response = response;
-        throw error;
-      }
-      return response;
-    })
-    .then((response) => response.json())
-    .then((response) => {
-      callback(null, response);
-    })
-    .catch ((error) => {
-      requestError(error, callback);
-    });
-};
-
-var requestError = (err, callback) => {
+const DISTANCE_API_URL = 'https://maps.googleapis.com/maps/api/distancematrix/json?';
+const requestError = (err, callback) => {
   callback(new Error('Request error: Could not fetch data from Google\'s servers: ' + err));
 }
 
-var fetchData_old = function(options, callback) {
-  request(DISTANCE_API_URL + qs.stringify(options), function (err, res, body) {
-    if (!err && res.statusCode == 200) {
-      var data = JSON.parse(body);
-      callback(null, data);
-    } else {
-      callback(new Error('Request error: Could not fetch data from Google\'s servers: ' + body));
+/**
+ * An object that caches keys for use with the Google Distance Matrix API.
+ * @type {GoogleDistance}
+ */
+class GoogleDistance {
+  /**
+   * Sets keys necessary to access the Google Distance Matrix API.
+   * @method
+   * @param  {Object} namedArgs an object for destructuring named arguments
+   * @param {String|undefined} namedArgs.apiKey your api key
+   * @param {String|undefined} namedArgs.businessClientKey your business client key
+   * @param {String|undefined} namedArgs.businessSignatureKey your business signaturek ey
+   * @return {GoogleDistance} a GoogleDistance object.
+   */
+  constructor(namedArgs){
+    let {apiKey, businessClientKey, businessSignatureKey} = namedArgs;
+    this.apiKey = apiKey || '';
+    this.businessClientKey = businessClientKey || '';
+    this.businessSignatureKey =  businessSignatureKey || '';
+  }
+  /**
+   * Processes input options and calls the API.
+   * @method
+   * @param  {Object}   args     Options to pass to the API.
+   * @param  {Function} callback a callback to handle (err, success)
+   * @return {undefined}
+   */
+  get(args, callback){
+    const options = this.formatOptions(args);
+    this.fetchData(options, function(err, data){
+      if (err) return callback(err);
+      this.formatResults(data, options, function(err, results) {
+        if (err) return callback(err);
+        return callback(null, results);
+      });
+    });
+  }
+  /**
+   * Preprocesses the options to pass the Google API
+   * @param  {Object} args options to pass the Google API
+   * @return {Object}
+   * @throws {Error} if any invalid origins / destinations are input
+   */
+  formatOptions(args){
+    let {
+      index, origin, origins, destination, destinations, mode, units, language,
+      avoid, sensor, key
+    } = args;
+    let batchMode = false;
+    index    = index    || null;
+    mode     = mode     || 'driving';
+    units    = units    || 'metric';
+    language = language || 'en';
+    avoid    = avoid    || null;
+    sensor   = sensor   || false;
+    key      = this.apiKey;
+
+    if (!origin && origins){
+      origins = origins.join('|');
+      batchMode = true;
     }
-  });
+    if (!destination && destinations){
+      destinations = destinations.join('|');
+      batchMode = true;
+    }
+    if (!origins) throw new Error('Argument Error: Origin is invalid');
+    if (!destinations) throw new Error('Argument Error: Destination is invalid');
+
+    return Object.assign({
+      index, origins, destinations, mode, units, language, avoid, sensor, key
+    }, batchMode && {batchMode}) //only include batchMode if true
+  }
+  /**
+   * Formats the results to... something
+   * @method
+   * @param  {Object}   data     a response as seen at
+   * @param  {Object]}   options  ...
+   * @param  {Function} callback error/success handler function(err, data)
+   * @return {Object|Object[]} An array of processed result elements
+   */
+  formatResults(data, options, callback) {
+    /**
+     * Processes one element of an API response
+     * @function
+     * @param  {element} element
+     * @return {Object} { index, distance, duration, durationValue, origin,
+     *  destination, mode, units, avoid, sensor }
+     */
+    const formatData = element => {
+      return {
+        index: options.index,
+        distance: element.distance.text,
+        distanceValue: element.distance.value,
+        duration: element.duration.text,
+        durationValue: element.duration.value,
+        origin: element.origin,
+        destination: element.destination,
+        mode: options.mode,
+        units: options.units,
+        language: options.language,
+        avoid: options.avoid,
+        sensor: options.sensor
+      };
+    };
+
+    if (data.status != 'OK') {
+      return callback(
+        new Error(`Status error: ${data.status}: ${data.error_message}`)
+      );
+    }
+    let results = [];
+
+    for (let i = 0; i < data.origin_addresses.length; i++) {
+      for (var j = 0; j < data.destination_addresses.length; j++) {
+        var element = data.rows[i].elements[j];
+        let {status} = element;
+        if (status != 'OK') {
+          return callback(new Error(`Result error: ${resultStatus}`));
+        }
+        element.origin = data.origin_addresses[i];
+        element.destination = data.destination_addresses[j];
+
+        results.push(formatData(element));
+      }
+    }
+
+    if (results.length == 1 && !options.batchMode) {
+      results = results[0];
+    }
+    return callback(null, results);
+  };
+  /**
+   * Fetches data
+   * @param  {Object}   options  see formatResults's return
+   * @param  {Function} callback Error/success handler function(err, data)
+   * @return {undefined}
+   */
+  fetchData(options, callback) {
+    fetch(DISTANCE_API_URL + qs.stringify(options))
+      .then((response) => {
+        if(response.status != 200) {
+          let error = new Error(response.statusText);
+          error.response = response;
+          throw error;
+        }
+        return response;
+      })
+      .then((response) => response.json())
+      .then((response) => {
+        callback(null, response);
+      })
+      .catch ((error) => {
+        requestError(error, callback);
+      });
+  }
 };
 
-module.exports = new GoogleDistance();
+export default new GoogleDistance;
