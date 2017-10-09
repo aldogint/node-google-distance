@@ -20,7 +20,7 @@ class GoogleDistance {
    * @param {String|undefined} namedArgs.businessSignatureKey your business signaturek ey
    * @return {GoogleDistance} a GoogleDistance object.
    */
-  constructor(namedArgs){
+  constructor(namedArgs={}){
     let {apiKey, businessClientKey, businessSignatureKey} = namedArgs;
     this.apiKey = apiKey || '';
     this.businessClientKey = businessClientKey || '';
@@ -162,5 +162,5 @@ class GoogleDistance {
       });
   }
 };
-
+// export {GoogleDistance};
 export default new GoogleDistance;

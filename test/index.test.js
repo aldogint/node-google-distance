@@ -1,5 +1,5 @@
 var assert = require('chai').assert,
-    distance = require('../');
+    distance = require('../dist/index.common.js');
 var fetch = require('node-fetch');
 
 describe('GoogleDistance', function() {
