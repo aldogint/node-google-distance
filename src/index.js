@@ -5,6 +5,12 @@ POLYFILL_FETCH
 
 const DISTANCE_API_URL = 'https://maps.googleapis.com/maps/' +
   'api/distancematrix/json?';
+/**
+ * Embellishes an error with a prepended error message
+ * @param  {Error}   err  a previously thrown error
+ * @param  {Function} callback an error handler
+ * @return {undefined}
+ */
 const requestError = (err, callback) => {
   callback(new Error('Request error: Could not fetch data from Google\'s servers: ' + err));
 }
@@ -49,7 +55,7 @@ class GoogleDistance {
   /**
    * Preprocesses the options to pass the Google API
    * @param  {Object} args options to pass the Google API
-   * @return {Object}
+   * @return {Object} processed options
    * @throws {Error} if any invalid origins / destinations are input
    */
   formatOptions(args){
@@ -96,7 +102,7 @@ class GoogleDistance {
    * Formats the results to... something
    * @method
    * @param  {Object}   data     a response as seen at
-   * @param  {Object]}   options  ...
+   * @param  {Object}   options  ...
    * @param  {Function} callback error/success handler function(err, data)
    * @return {Object|Object[]} An array of processed result elements
    */
@@ -104,7 +110,7 @@ class GoogleDistance {
     /**
      * Processes one element of an API response
      * @function
-     * @param  {element} element
+     * @param  {Object} element an element of an api return
      * @return {Object} { index, distance, duration, durationValue, origin,
      *  destination, mode, units, avoid, sensor }
      */
