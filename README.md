@@ -9,7 +9,7 @@ A simple wrapper for the [Google Distance Matrix API](https://developers.google.
 or 
 
 ```
-git submodule https://github.com/SKalt/react-native-google-matrix.git [path/to/where/you/want/it]
+git submodule add https://github.com/SKalt/react-native-google-matrix.git [path/to/where/you/want/it]
 ````
 
 ## Usage
