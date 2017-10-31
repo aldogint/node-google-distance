@@ -1,17 +1,24 @@
-# Google Distance Matrix API for react-native
-[![Build Status](https://travis-ci.org/aldogint/react-native-google-matrix.svg?branch=master)](https://travis-ci.org/aldogint/react-native-google-matrix)
-[![npm version](https://badge.fury.io/js/react-native-google-matrix.svg)](https://badge.fury.io/js/react-native-google-matrix)  
+# Google Distance Matrix API for react-native 
 
-This repository is forked from [node-google-distance](https://github.com/aldogint/node-google-distance).   
-A simple react-native wrapper for [Google Distance Matrix API](https://developers.google.com/maps/documentation/distancematrix/)
+This repository is forked from [react-native-google-matrix](https://github.com/aldogint/react-native-google-matrix) which as forked from [node-google-distance](https://github.com/aldogint/node-google-distance).     
+A simple wrapper for the [Google Distance Matrix API](https://developers.google.com/maps/documentation/distancematrix/) that uses the [fetch api](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) and es6 syntax used in modern browsers and react native.
 
 ## Installation
 
-    npm install --save react-native-google-matrix
+    git clone https://github.com/SKalt/react-native-google-matrix.git [path/to/where/you/want/it]
+or 
+
+```
+git submodule add https://github.com/SKalt/react-native-google-matrix.git [path/to/where/you/want/it]
+````
 
 ## Usage
 ```js
-var distance = require('google-distance');
+var distance = require('path/to/google-distance/dist/index.common.js');
+```
+or
+```js
+import distance from 'path/to/google-distance/dist/index.mjs';
 
 distance.get(
   {
@@ -23,5 +30,3 @@ distance.get(
     console.log(data);
 });
 ```
-
-*to be updated...*
